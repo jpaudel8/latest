@@ -1,15 +1,9 @@
-<title>EC2 Info</title>
-<body style="font-family:sans-serif; max-width:500px; margin:auto">
-  <h1>EC2 Instance Details</h1>
-  <p><b>Deployed via GitHub Actions</b></p>
-  
-  <ul>
-    <li><b>ID:</b> {{INSTANCE_ID}}</li>
-    <li><b>Type:</b> {{INSTANCE_TYPE}}</li>
-    <li><b>AZ:</b> {{AVAILABILITY_ZONE}}</li>
-    <li><b>Private IP:</b> {{LOCAL_IPV4}}</li>
-    <li><b>Public IP:</b> {{PUBLIC_IPV4}}</li>
-  </ul>
-
-  <small>Served by ALB | Auto-deployed</small>
-</body>
+<h1>EC2 Details</h1>
+<p>Served by Load balancer</p>
+<pre>
+ID: {{INSTANCE_ID}}
+Type: {{INSTANCE_TYPE}}
+AZ: {{AVAILABILITY_ZONE}}
+Private IP: {{LOCAL_IPV4}}
+Public IP: {{PUBLIC_IPV4}}
+</pre>
