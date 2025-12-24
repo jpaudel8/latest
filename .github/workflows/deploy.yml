@@ -98,6 +98,6 @@ jobs:
       
       - name: Deployment Summary
         run: |
-          echo "🎉 Deployment completed successfully to all ASG instances!"
+          echo "🎉 Deployment completed successfully to all ASG instancess!"
           echo "Deployed file: index.html"
           echo "Target instances: ${{ steps.get-ips.outputs.public_ips }}"
