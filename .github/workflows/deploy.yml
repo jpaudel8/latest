@@ -88,7 +88,7 @@ jobs:
               echo "Deployment completed on $(hostname)"
           ENDSSH
             
-            echo "✅ Deployment to $ip completed"
+            echo " Deployment to $ip completed"
           done
       
       - name: Cleanup
@@ -98,6 +98,6 @@ jobs:
       
       - name: Deployment Summary
         run: |
-          echo "🎉 Deployment completed successfully to all ASG instancess!"
+          echo " Deployment completed successfully to all ASG instancess!"
           echo "Deployed file: index.html"
           echo "Target instances: ${{ steps.get-ips.outputs.public_ips }}"
