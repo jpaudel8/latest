@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EC2 Instance Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .deployed-badge {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .label {
+            font-weight: bold;
+            color: #333;
+        }
+        .value {
+            color: #666;
+            margin-left: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        .loading {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 EC2 Instance Details</h1>
+        <div class="deployed-badge">
+            ✅ Deployed via GitHub Actions
+        </div>
+        
+        <div id="content" class="loading">
+            Loading instance information...
+        </div>
+        
+        <div class="footer">
+            Served by Application Load Balancer | Auto-deployed from GitHub
+        </div>
+    </div>
+
+    <script>
+        async function fetchInstanceMetadata() {
+            const content = document.getElementById('content');
+            
+            try {
+                // Get token for IMDSv2
+                const tokenResponse = await fetch('/metadata/token', {
+                    method: 'PUT',
+                    headers: {
+                        'X-aws-ec2-metadata-token-ttl-seconds': '21600'
+                    }
+                });
+                
+                if (!tokenResponse.ok) {
+                    throw new Error('Unable to get metadata token');
+                }
+                
+                const token = await tokenResponse.text();
+                
+                // Fetch all metadata
+                const [instanceId, instanceType, az, privateIp, publicIp] = await Promise.all([
+                    fetch('/metadata/instance-id', { headers: { 'X-aws-ec2-metadata-token': token } }).then(r => r.text()),
+                    fetch('/metadata/instance-type', { headers: { 'X-aws-ec2-metadata-token': token } }).then(r => r.text()),
+                    fetch('/metadata/placement/availability-zone', { headers: { 'X-aws-ec2-metadata-token': token } }).then(r => r.text()),
+                    fetch('/metadata/local-ipv4', { headers: { 'X-aws-ec2-metadata-token': token } }).then(r => r.text()),
+                    fetch('/metadata/public-ipv4', { headers: { 'X-aws-ec2-metadata-token': token } }).then(r => r.text())
+                ]);
+                
+                content.innerHTML = `
+                    <div class="info-box">
+                        <span class="label">Instance ID:</span>
+                        <span class="value">${instanceId}</span>
+                    </div>
+                    <div class="info-box">
+                        <span class="label">Instance Type:</span>
+                        <span class="value">${instanceType}</span>
+                    </div>
+                    <div class="info-box">
+                        <span class="label">Availability Zone:</span>
+                        <span class="value">${az}</span>
+                    </div>
+                    <div class="info-box">
+                        <span class="label">Private IPv4:</span>
+                        <span class="value">${privateIp}</span>
+                    </div>
+                    <div class="info-box">
+                        <span class="label">Public IPv4:</span>
+                        <span class="value">${publicIp}</span>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="info-box" style="border-left-color: #dc3545;">
+                        <span class="label">Error:</span>
+                        <span class="value">Unable to fetch instance metadata</span>
+                    </div>
+                    <p style="color: #666; margin-top: 15px;">
+                        This might be due to CORS restrictions or metadata service configuration.
+                    </p>
+                `;
+            }
+        }
+        
+        fetchInstanceMetadata();
+    </script>
+</body>
+</html>
